@@ -84,13 +84,13 @@
 	?fact2 <- (theorem (name ?n2) (coef ?c2))
 	=>
 	(if (and (eq ?n1 ?n2) (!= ?c1 ?c2)) then
-	(assert  (theorem (name ?n1) (coef (- (+ ?c1 ?c2) (* ?c1 ?c2)))))
-	(retract ?fact1)
-	(retract ?fact2)
-	(assert ( appendmessage (str-cat "
-	НОВЫЙ КОЭФИЦИЕНТ для " ?f1 ": " (- (+ ?coef1 ?coef2) (* ?coef1 ?coef2))
-	)))
-	)
+		(assert  (theorem (name ?n1) (coef (- (+ ?c1 ?c2) (* ?c1 ?c2)))))
+		(retract ?fact1)
+		(retract ?fact2)
+(assert ( appendmessage (str-cat "
+НОВЫЙ КОЭФИЦИЕНТ для " ?n1 ": (" ?c1 "+" ?c2 ")-(" ?c1 "*" ?c2 ")=" (- (+ ?c1 ?c2) (* ?c1 ?c2))
+)))
+)
 )
 
 ;======================================================================================

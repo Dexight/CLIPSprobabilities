@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 
 using CLIPSNET;
 using System.Data.SqlTypes;
+using System.Xml.Linq;
 
 
 namespace ClipsFormsExample
@@ -52,7 +53,7 @@ namespace ClipsFormsExample
                 outputBox.Text += message + "\r\n\r\n";
 
                 string[] message_words = message.Split(' ');
-                string proved_fact = message_words[message_words.Length - 1].Trim('<', '>');
+                string proved_fact = message_words[message_words.Length - 2].Trim('<', '>');
                 if (proved_fact == end)
                 {
                     isEnd = true;
@@ -102,12 +103,16 @@ namespace ClipsFormsExample
             }
             else end = listBox1.SelectedItem.ToString();
 
+            Random rand = new Random();
+            List<double> coefs = new List<double>();
             outputBox.Text += "Выбор сделан!\r\nДаны следующие теоремы:\r\n";
             foreach (string s in init)
             {
-                outputBox.Text += s+"\r\n";
+                double c = 0.9;// Math.Round(rand.NextDouble(), 2);
+                outputBox.Text += s+$"({c.ToString().Replace(",", ".")})\r\n";
+                coefs.Add(c);
             }
-            outputBox.Text += "\r\nНужно доказать:\r\n"+end+"\r\n";
+            outputBox.Text += "\r\nНужно доказать:\r\n"+end+"(?)\r\n";
 
             if (init.Contains(end))
             {
@@ -115,9 +120,9 @@ namespace ClipsFormsExample
                 return;
             }
 
+            int indx = 0;
             foreach (string s in init)
-                clips.Eval($"(assert (theorem {s}))");
-
+                clips.Eval($"(assert (theorem (name {s}) (coef {coefs[indx++].ToString().Replace(",", ".")})))");
             clips.Run();
             HandleResponse();
         }

@@ -45,7 +45,7 @@ def generate_clips_facts_and_rules(descriptions, rules, template):
         conclusion_message = descriptions.get(conclusion, conclusion).replace(" ", "_")
 
         # Генерация рандомного коэфициента
-        coef = round(random.random(), ndigits=3)
+        coef = round(random.random(), ndigits=2)
 
         # Составная строка коэффициентов
         coef_string = ""
@@ -57,7 +57,7 @@ def generate_clips_facts_and_rules(descriptions, rules, template):
                           f"(declare (salience 20))\n"
                           f"{condition_str}\n"
                           f"    =>\n"
-                          f"    (assert( appendmessage \"Из <{condition_message}> доказали <{conclusion_message}>\"))\n"
+                          f"    (assert( appendmessage (str-cat \"Из <{condition_message}> доказали <{conclusion_message}> ({coef}*\" (min {coef_string}) \"=\"(* {coef} (min{coef_string}))\")\")))\n"
                           f"    (assert (theorem (name {conclusion_message}) (coef (* {coef} (min{coef_string})))))\n"
                           f")\n")
         n += 1
