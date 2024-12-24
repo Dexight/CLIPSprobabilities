@@ -146,7 +146,7 @@ namespace ClipsFormsExample
                 listBox1.Items.Clear();
 
                 string text = codeBox.Text = System.IO.File.ReadAllText(clipsOpenFileDialog.FileName);
-                string pattern = @"\(theorem\s+(.*?)\)";
+                string pattern = @"\(name\s+([^?\s].*?)\)";
 
                 MatchCollection matches = Regex.Matches(text, pattern);
 
@@ -202,6 +202,11 @@ namespace ClipsFormsExample
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkedListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

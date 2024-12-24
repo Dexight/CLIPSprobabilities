@@ -1,3 +1,5 @@
+import random
+import math
 def parse_description_file(filename):
     """Парсим файл описания и возвращаем словарь аксиом и теорем с их описаниями."""
     descriptions = {}
@@ -17,13 +19,17 @@ def parse_model_file(filename):
             rules.append((conditions, conclusion))
     return rules
 
-def generate_clips_facts_and_rules(descriptions, rules):
-    """Генерируем факты и правила для CLIPS."""
-    clips_code = []
+def read_template_file(filename):
+    text = []
+    with open(filename, 'r', encoding='utf-8') as f:
+        for line in f:
+            text.append(line.rstrip('\n'))
+    return text
 
-    # Генерация фактов
-    #for id_, desc in descriptions.items():
-    #    clips_code.append(f"(theorem \"{desc}\")")
+def generate_clips_facts_and_rules(descriptions, rules, template):
+    random.seed()
+    """Генерируем факты и правила для CLIPS."""
+    clips_code = template
 
     # Генерация правил
     n = 0
@@ -32,18 +38,27 @@ def generate_clips_facts_and_rules(descriptions, rules):
         condition_descs = [descriptions[id_].replace(" ", "_") for id_ in conditions]
 
         # Получаем описания для всех условий
-        condition_str = '\n'.join([f"    (theorem {descriptions[id_].replace(" ", "_")})" for id_ in conditions])
+        condition_str = '\n'.join([f"    (theorem (name {descriptions[id_].replace(" ", "_")}) (coef ?c{i}))" for i, id_ in enumerate(conditions, start=1)])
         
         # Формируем строку сообщения с описаниями
         condition_message = "> и <".join(condition_descs)
         conclusion_message = descriptions.get(conclusion, conclusion).replace(" ", "_")
-        
+
+        # Генерация рандомного коэфициента
+        coef = round(random.random(), ndigits=3)
+
+        # Составная строка коэффициентов
+        coef_string = ""
+        for indx in range(1, len(conditions)+1):
+            coef_string += f" ?c{indx}"
+
         # Генерация правила
         clips_code.append(f"(defrule rule_{n}\n"
+                          f"(declare (salience 20))\n"
                           f"{condition_str}\n"
                           f"    =>\n"
                           f"    (assert( appendmessage \"Из <{condition_message}> доказали <{conclusion_message}>\"))\n"
-                          f"    (assert (theorem {conclusion_message}))\n"
+                          f"    (assert (theorem (name {conclusion_message}) (coef (* {coef} (min{coef_string})))))\n"
                           f")\n")
         n += 1
 
@@ -59,16 +74,17 @@ def main():
     # Пути к исходным файлам
     model_filename = 'model.txt'
     description_filename = 'description.txt'
-    
+    template_filename = 'template.clp'
+
     # Чтение файлов
     descriptions = parse_description_file(description_filename)
     rules = parse_model_file(model_filename)
-    
+    template = read_template_file(template_filename)
     # Генерация CLIPS кода
-    clips_code = generate_clips_facts_and_rules(descriptions, rules)
+    clips_code = generate_clips_facts_and_rules(descriptions, rules, template)
     
     # Сохранение в файл .clp
-    save_to_clips_file(clips_code, 'output.clp')
+    save_to_clips_file(clips_code, 'base.clp')
 
 if __name__ == "__main__":
     main()
